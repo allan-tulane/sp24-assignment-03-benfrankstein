@@ -20,10 +20,47 @@ def MED(S, T):
 
 
 def fast_MED(S, T, MED={}):
-    # TODO -  implement top-down memoization
-    pass
+    if (S, T) in MED:
+        return MED[(S, T)]
+
+    if S == "":
+        return len(T)
+
+    elif T == "":
+        return len(S)
+    elif S[0] == T[0]:
+        result = fast_MED(S[1:], T[1:], MED)
+    else:
+        insert = fast_MED(S, T[1:], MED)
+        delete = fast_MED(S[1:], T, MED)
+        result = 1 + min(insert , delete)
+        MED[(S, T)] = result
+    return result
 
 def fast_align_MED(S, T, MED={}):
-    # TODO - keep track of alignment
-    pass
+    if (S, T) in MED:
+        return MED[(S, T)]
+    elif S == "":
+        MED[(S, T)] = ("-" * len(T), T)
+        return MED[(S, T)]
+    elif T == "":
+        MED[(S, T)] = (S, "-" * len(S))
+        return MED[(S, T)]
+  
+    else:
+        if S[0] == T[0]:
+            SA, TA = fast_align_MED(S[1:], T[1:], MED)
+            MED[(S, T)] = (S[0] + SA, T[0] + TA)
+        else:
+            SI, TI = fast_align_MED(S, T[1:], MED)
+            SD, TD = fast_align_MED(S[1:], T, MED)
 
+            insertcost = 1 + len(SI)
+            deletecost = 1 + len(SD)
+
+            if insertcost <= deletecost:
+                MED[(S, T)] = ("-" + SI, T[0] + TI)
+            else:
+                MED[(S, T)] = (S[0] + SD, "-" + TD)
+    print(MED[(S,T)])
+    return MED[(S, T)]
